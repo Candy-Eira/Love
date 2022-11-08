@@ -1,2 +1,472 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-128060564-3"></script>
+    <script>
+        var host = window.location.hostname;
+        if (host != 'localhost') {
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+
+            gtag('js', new Date());
+
+            gtag('config', 'UA-128060564-4');
+        }
+    </script>
+
+    <meta charset='utf-8'>
+
+    <title>Developing heart</title>
+
+    <meta name="description" content="A d3.js dashboard for data visualisation">
+
+    <!--jquery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="./lib/css/bootstrap.min.css">
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">-->
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">-->
+    <script src="./lib/js/bootstrap.min.js"></script>
+
+    <!-- bootstrap switch -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/css/bootstrap3/bootstrap-switch.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/js/bootstrap-switch.js"></script>
+
+    <!-- bootstrap toggle-->
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+
+    <!-- keen.io -->
+    <link rel="stylesheet" href="./lib/css/keen-dashboards.css">
+    <script src="./lib/js/keen.min.js"></script>
+
+    <!--d3 -->
+    <script src='https://d3js.org/d3.v4.min.js'></script>
+    <script src="./lib/js/d3-delaunay.min.js"></script>
+
+    <!-- leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"></script>
+
+    <!-- leaflet Fullscreen -->
+    <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css'
+          rel='stylesheet'/>
+    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+
+    <!-- minimap -->
+    <link href='https://rawgit.com/Norkart/Leaflet-MiniMap/master/dist/Control.MiniMap.min.css' rel='stylesheet'/>
+    <script src='https://rawgit.com/Norkart/Leaflet-MiniMap/master/dist/Control.MiniMap.min.js'></script>
+
+    <!-- leaflet Coordinates -->
+    <link rel="stylesheet" href="https://mrmufflon.github.io/Leaflet.Coordinates/dist/Leaflet.Coordinates-0.1.3.css"/>
+    <script src="https://mrmufflon.github.io/Leaflet.Coordinates/dist/Leaflet.Coordinates-0.1.3.src.js"></script>
+
+    <!-- datatables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+
+    <!-- turf --> <!--31-Mar-2019: I dont think I am using turf anymore -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/5.1.5/turf.min.js"></script>
+
+    <!-- Leaflet Coordinates -->
+    <link rel="stylesheet" href="./lib/css/Leaflet.Coordinates-0.1.5.css">
+    <script src="./lib/js/Leaflet.Coordinates-0.1.5.min.js"></script>
+
+    <!-- Page loader -->
+    <link rel="stylesheet" href="dashboard/css/normalize.css">
+    <link rel="stylesheet" href="dashboard/css/main.css">
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>-->
+
+    <!--Font Awesome-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
+
+    <!-- User scripts  -->
+    <script src="dashboard/js/glyphs.js"></script>
+    <script src="dashboard/js/utils.js"></script>
+    <script src='dashboard/js/classColors.js'></script>
+    <script src='dashboard/js/updater.js'></script>
+    <script src='dashboard/js/section.js'></script>
+    <script src='dashboard/js/barchart.js'></script>
+    <script src='dashboard/js/donut.js'></script>
+    <script src='dashboard/js/dt.js'></script>
+    <script src='dashboard/js/spotPopup.js'></script>
+    <script src='dashboard/js/dapi.js'></script>
+    <script src='dashboard/js/glyphAssignment.js'></script>
+    <!-- <script src='dashboard/js/heatmap.js'></script> -->
+    <!-- <script src='dashboard/js/exporter.js'></script> -->
+    <!--<script src='dashboard/js/index.js'></script>-->
+    <script src='dashboard/js/config.js'></script>
+    <script src='dashboard/js/app.js'></script> <!--Keep that at the bottom. below all other js files-->
+    <!--There is also a index.js which I am reference further down, inside <body></body> towards its end-->
+
+    <link rel="stylesheet" href="dashboard/css/index.css">
+
+
+</head>
+
+<body class="application" id="body">
+
+<div id="loader-wrapper">
+    <div id="loader"></div>
+
+    <div class="loader-section section-left"></div>
+    <div class="loader-section section-right"></div>
+    <!--        <p id='status'>Loading...</p>-->
+
+</div>
+
+<form id="mapCenterForm">
+    <input type="hidden" id="xValue"/>
+    <input type="hidden" id="yValue"/>
+</form>
+
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h2 class="modal-title">Probabilistic cell map</h2>
+            </div>
+            <div class="modal-body">
+
+                <p>
+                    This online viewer shows a spatial cell map of human developing heart at 6.5 PCW timepoint.
+                </p>
+
+                <p>
+                    We used <i>in situ</i> sequencing to map the expression of 69 genes human 6.5 PCW heart.
+                </p>
+
+                <p>
+                    The visualization window on the left shows where the RNA molecules were detected.
+                    Each colored symbol represents an RNA detection – hover over a symbol to see what gene it
+                    represents.
+                    The white blobs show cell nuclei, and the gray dotted lines show their estimated borders.
+                    Hover over a cell to see what genes were assigned to it (they will connect by lines),
+                    and what cell classes it might belong to (in the bottom left corner).
+                    Click on a cell to show even more information, in the lower right panels.
+                </p>
+
+                <p>
+                    Use the Section Overview (top right panel) to zoom around – click any cell and it will take you
+                    straight there.
+                    To show data from a different section, click “Select Tissue Section", in top left corner of the window.
+                </p>
+
+                <p>
+                    A full description of the study and data is can be found in the manuscript
+                     "A spatiotemporal organ-wide gene expression and cell atlas of the developing human heart".
+                </p>
+
+                <p>
+                    The call typing algorithms was described in
+                    <a href="https://www.biorxiv.org/content/early/2018/10/01/431957" target="_blank"> this paper</a>. 
+                    
+                </p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- main page container, holding the nav tabs and content -->
+<div id="container">
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">6.5 PCW embryonic heart</a>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown" id="myDropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                Select Tissue Section
+                                <span class="caret"></span>
+                            </a>
+                            <script>
+                                var aa="abc";
+                                var bb=2;
+                            </script>
+                            <ul class="dropdown-menu">
+   
+                                <li><a class="dropdown-item" href="#" onclick='dispatcher("PCW 6.5_1")'>post-conception week 6.5 section 1</a></li>
+                                <li><a class="dropdown-item" href="#" onclick='dispatcher("PCW 6.5_2")'>post-conception week 6.5 section 2 (default)</a></li>
+
+                            </ul>
+                        </li>                   
+                     </ul>
+
+                     <ul class="nav navbar-nav navbar-right">
+                        <li><a data-target="#myModal" data-toggle="modal" href="#myModal">About</a></li>
+                    </ul>
+                </div><!--/.nav-collapse -->
+            </div><!--/.container-fluid -->
+
+        </div>
+    </div>
+
+    <!-- tab navigation -->
+    <ul class="nav nav-tabs" role="tablist" id="index-tabs" style="margin-top:-6px;">
+    </ul>
+
+    <!-- content for the nav tabs -->
+    <div class="tab-content">
+
+        <!-- map content tab -->
+        <div class="tab-pane active fade in" id="map-content">
+            <div class="container-fluid">
+                <div class="row" style="margin-top:5px">
+                    <!--//top row-->
+                    <div class="row" style="margin-top:5px">
+                        <div class="col-sm-12">
+                            <!-- Map -->
+                            <div class="col-sm-7">
+                                <div class="chart-wrapper">
+                                    <!-- <div class="chart-title">
+                                        Gene Map
+                                    </div> -->
+                                    <div class="chart-stage">
+                                        <div id="leafletmap">
+                                            <div id="mymap" style="width: 100%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Map -->
+
+
+                            <div class="col-sm-5">
+                                <div class="row">
+                                    <div class="chart-wrapper">
+                                        <div class="chart-title">
+                                            Section Overview
+                                        </div>
+                                        <div class="chart-stage">
+                                            <!-- Scatter Plot -->
+                                            <div class="col-sm-7">
+                                                <div id="scatter-plot" class="display compact custom" ; width=100%>
+                                                    <svg></svg>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <table class="no-spacing" id="section-chart-controls" width="100%">
+                                                    <!--<div id = "section-chart-controls">-->
+                                                    <!--<label>-->
+                                                    <tbody>
+                                                    <tr>
+                                                        <td><input type="checkbox" name="cb:select-all"/></td>
+                                                        <td> Select All</td>
+                                                    </tr>
+                                                    <tr style="width:95px; border-top:1px solid #8a9597;">
+                                                        <td><input type="checkbox" name="(0) Capillary endothelium"/></td>
+                                                        <td> (0) Capillary endothelium</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input type="checkbox" name="(1) Ventricular cardiomyocytes"/></td>
+                                                        <td> (1) Ventricular cardiomyocytes</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input type="checkbox" name="(2) Fibroblast-like (related to cardiac skeleton connective tissue)"/></td>
+                                                        <td> (2) Fibroblast-like (related to cardiac skeleton connective tissue)</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input type="checkbox" name="(3) Epicardium-derived cells"/></td>
+                                                        <td> (3) Epicardium-derived cells</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input type="checkbox" name="(4) Fibroblast-like (smaller vascular development)"/></td>
+                                                        <td> (4) Fibroblast-like (smaller vascular development)</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input type="checkbox" name="(5) Smooth muscle cells/ fibroblast-like"/></td>
+                                                        <td> (5) Smooth muscle cells/ fibroblast-like</td>
+                                                    </tr>
+                                                    <!-- <tr>
+                                                        <td><input type="checkbox" name="(6) Erythrocytes-1"/></td>
+                                                        <td> (6) Erythrocytes-1</td>
+                                                    </tr> -->
+                                                    <tr>
+                                                        <td><input type="checkbox" name="(7) Atrial cardiomyocytes"/></td>
+                                                        <td> (7) Atrial cardiomyocytes</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input type="checkbox" name="(8) Fibroblast-like (larger vascular development)"/></td>
+                                                        <td> (8) Fibroblast-like (larger vascular development)</td>
+                                                    </tr>                                                        
+                                                    <tr>
+                                                        <td><input type="checkbox" name="(9) Epicardial cells"/></td>
+                                                        <td> (9) Epicardial cells</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><input type="checkbox" name="(10) Endohelium/ pericytes/ adventia"/></td>
+                                                        <td> (10) Endothelium / pericytes/ adventia</td>
+                                                    </tr>
+                                                    <!-- <tr>
+                                                        <td><input type="checkbox" name="(11) Erythrocytes-2"/></td>
+                                                        <td> (11) Erythrocytes-2</td>
+                                                    </tr> -->
+                                                    <tr>
+                                                        <td><input type="checkbox" name="(12) Cardiomyocytes"/></td>
+                                                        <td> (12) Cardiomyocytes</td>
+                                                    </tr>
+                                                    <!-- <tr>
+                                                        <td><input type="checkbox" name="(13) Immune cells"/></td>
+                                                        <td> (13) Immune cells</td>
+                                                    </tr> -->
+                                                    <tr>
+                                                        <td><input type="checkbox" name="(14) Cardiac neural crest cells & Schwann progenitor cells"/></td>
+                                                        <td> (14) Cardiac neural crest cells & Schwann progenitor cells</td>
+                                                    </tr>
+                                                    <!-- <tr>
+                                                        <td><input type="checkbox" name="Uncalled"/></td>
+                                                        <td> Uncalled</td>
+                                                    </tr> -->
+                                                    <tr style="width:95px; border-top:1px solid #8a9597;">
+                                                        <td><input type="checkbox" name="cb:clear-all"/></td>
+                                                        <td> Clear All</td>
+                                                    </tr>
+
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <!-- Bar and Pie Chart -->
+                                    <div class="chart-wrapper">
+                                        <div class="chart-title">
+                                            Cell Type Probabilities
+                                        </div>
+                                        <div class="chart-stage">
+                                            <div class="col-sm-7">
+                                                <div class="chart-stage" id="bar-chart">
+                                                    <svg width="400" height="180">
+                                                        <!-- Add a clip path -->
+                                                        <defs>
+                                                            <clipPath id="my-clip-path">
+                                                                <rect></rect>
+                                                            </clipPath>
+                                                        </defs>
+                                                        <g class="focus">
+                                                            <g class="axis"></g>
+                                                            <g class="axis axis--y"></g>
+                                                        </g>
+                                                        <g class="context">
+                                                            <g class="axis2"></g>
+                                                            <g class="brush"></g>
+                                                        </g>
+                                                    </svg>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-5">
+                                                <div class="chart-stage" id="pie">
+                                                    <svg width="280" height="180"></svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="chart-wrapper">
+                                        <div class="chart-title" id="dtTitle">
+                                            Title
+                                        </div>
+                                        <div class="chart-stage">
+                                            <div class="col-sm-6">
+                                                <div class="chart-stage">
+                                                    <table id="dtTable" class="display compact custom"
+                                                           data-page-length='5' width=100%></table>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="chart-stage">
+                                                    <table id="dtTable2" class="display compact custom"
+                                                           data-page-length='5' width=100%></table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div><!-- tab-content -->
+
+    <!--<hr>-->
+
+    <div id="footnote" style="margin-top:-15px;">
+        <p class="small text-muted" id="alignleft"><a href="https://hdca-sweden.scilifelab.se/">Human Developmental Cell Atlas Sweden</a>
+             | Stockholm University <a href="https://www.scilifelab.se/researchers/mats-nilsson/">Nilsson Group</a></p>
+        <p class="small text-muted" id="alignright"><a href="http://insitu.cortexlab.net/">Original viewer</a> developed by <a href="https://github.com/acycliq">Dimitris N.</a> 
+            from <a href="http://www.ucl.ac.uk/cortexlab">Cortexlab</a></p>
+    </div>
+    <!--<div style="clear: both;"></div>-->
+
+
+    <!--Another user script. Needs to be here, after all the divs have been read-->
+    <script src='dashboard/js/index.js'></script>
+
+    <!-- uncheck all the tickboxes -->
+    <script>
+    var checkboxes = document.getElementsByTagName('input');
+
+        for (var i=0; i<checkboxes.length; i++)  {
+        if (checkboxes[i].type == 'checkbox')   {
+            checkboxes[i].checked = false;
+        }
+        }
+    </script>
+
+    <!--this will stop the preloader after 3sec. (can get rid off the time-out and make it show the webpage when all charts are rendered??)-->
+    <script>
+        setTimeout(function () {
+            $('body').addClass('loaded');
+            $('h1').css('color', '#222222');
+        }, 3000);
+    </script>
+
+    <script>
+
+        // when document ready, show selected on dropdown
+        $(function() {
+            if (cookie){
+                d3.select('.dropdown-toggle').node().text = cookie + '  '
+                $('.dropdown-toggle').append("<span class='caret'></span>");
+            }
+        });
+
+
+    </script>
+
+
+</body>
+
+</html>
